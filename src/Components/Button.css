@@ -1,0 +1,16 @@
+button {
+    min-height: 4.0625rem;
+    border-radius: 0;
+    background-color: var(--colour-button-grey-200);
+    border: none;
+    outline: 1px solid black;
+    font-family: inherit;
+    color: var(--colour-text);
+    font-size: 20px;
+}
+
+button:hover {
+    outline: 1px solid grey;
+    color: black;
+    z-index: 3;
+}

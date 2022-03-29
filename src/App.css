@@ -11,8 +11,7 @@
   width: min(20rem, 100%);
   padding: 5px;
   background-color: var(--colour-panel-background);
-  border: 2px solid red;
-  /*border: 2px solid var(--colour-panel-border);*/
+  border: 2px solid var(--colour-panel-border);
 }
 
 p {
@@ -28,7 +27,7 @@ a {
   color: var(--colour-button-blue);
 }
 
-h2 {
-  color: white;
-  margin: 0;
+.digital {
+  font-family: "Digital", serif;
+  color: var(--colour-text);
 }

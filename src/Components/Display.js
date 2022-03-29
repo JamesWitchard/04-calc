@@ -2,10 +2,10 @@ import React from 'react';
 
 import "./Display.css"
 
-const Display = () => {
+const Display = (props) => {
     return (
         <div id="display" className="digital">
-            30
+            {props.text}
         </div>
     );
 };

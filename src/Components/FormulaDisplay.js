@@ -2,10 +2,10 @@ import React from 'react';
 
 import "./FormulaDisplay.css"
 
-const FormulaDisplay = () => {
+const FormulaDisplay = (props) => {
     return (
         <div id="formula-display" className="digital">
-            36+-6=30
+            {props.text}
         </div>
     );
 };

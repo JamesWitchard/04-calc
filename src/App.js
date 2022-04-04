@@ -6,14 +6,15 @@ import Keypad from "./Components/Keypad";
 
 import './App.css';
 
-const operators = /[+/\-x\*]/
+const operators = /[+/\-x\*]/,
+    decimal = /^(\.)/
 
 function App() {
     const [formulaText, setFormulaText] = useState([""]);
     const [displayText, setDisplayText] = useState(["0"]);
     const [canAcceptInput, setCanAcceptInput] = useState(true);
-    const [usedOperator, setUsedOperator] = useState(false);
-
+    const [gotAnswer, setGotAnswer] = useState(false);
+    const [lastAnswer, setLastAnswer] = useState([]);
 
     function clearAll() {
         clearFormula();
@@ -21,7 +22,7 @@ function App() {
     }
 
     function clearFormula() {
-        setFormulaText([]);
+        setFormulaText([""]);
     }
 
     function clearDisplay() {
@@ -53,7 +54,9 @@ function App() {
                 if (!canAddInput()) return;
                 // make sure that the 0 in the display is replaced with the button pressed, and pushing the button
                 // pressed to the formula string array as well.
-                if (displayText[0] === "0" && displayText[1] !== ".") {
+                if ((displayText[0] === "0" && displayText[1] !== ".") || gotAnswer) {
+                    setGotAnswer(false);
+                    setDisplayText([input]);
                     setFormulaText([input])
                     return;
                 }
@@ -68,7 +71,8 @@ function App() {
                 if (!canAddInput()) return;
                 // make sure that the 0 in the display is replaced with the button pressed, and pushing the button
                 // pressed to the formula string array as well.
-                if (displayText[0] === "0" && displayText[1] !== ".") {
+                if ((displayText[0] === "0" && displayText[1] !== ".") || gotAnswer) {
+                    setGotAnswer(false);
                     setDisplayText([input]);
                     setFormulaText([input]);
                     return;
@@ -82,6 +86,13 @@ function App() {
                 if (!canAddInput()) return;
                 // walk through display text array and make sure decimal doesn't already exist.
                 if (!displayText.every(item => item !== input)) return;
+                if (gotAnswer) {
+                    setGotAnswer(false);
+                    // hard coded value because I don't know enough about react yet to make it update properly.
+                    setDisplayText(["0", "."]);
+                    setFormulaText(["0", "."]);
+                    return;
+                }
                 setDisplayText([...displayText, input]);
                 setFormulaText([...formulaText, input]);
                 return;
@@ -91,13 +102,31 @@ function App() {
                 if (!canAddInput()) return;
                 // make sure that the 0 in the display is replaced with the button pressed, and pushing the button
                 // pressed to the formula string array as well.
-                if (displayText[0] === "0" && displayText[1] !== ".") {
+                if ((displayText[0] === "0" && displayText[1] !== ".")) {
                     setDisplayText([input]);
                     setFormulaText([input]);
                     return;
                 }
+                if (gotAnswer) {
+                    setGotAnswer(false);
+                    setDisplayText([input]);
+                    setFormulaText([...lastAnswer, input]);
+                    setLastAnswer([""]);
+                    return;
+                }
                 setDisplayText([input]);
                 setFormulaText([...formulaText, input]);
+                return;
+            }
+            case "=": {
+                setGotAnswer(true);
+                let expression = formulaText.join("")
+                    .replace(/[.]$/, ".0");
+                let answer = Math.round(1000000000000 * eval(expression)) / 1000000000000;
+                setLastAnswer(answer.toString().split(""));
+                console.log(lastAnswer);
+                setFormulaText([...formulaText, "=", ...answer.toString().split("")]);
+                setDisplayText([...answer.toString().split("")]);
                 return;
             }
             default:
@@ -132,11 +161,23 @@ function App() {
         }
     }
 
+    function handleDecimal() {
+        if (formulaText.join("").indexOf(".") < 0) return;
+        if ((/\d/g).test(formulaText[formulaText.indexOf(".") - 1])) return;
+        setFormulaText([...formulaText.join("")
+            .replace(".", "0.")
+            .split("")]);
+
+    }
+
     useEffect(clearAll, []);
 
-    //useEffect(handleOperators, [displayText]);
+    useEffect(handleOperators, [displayText]);
 
-    useEffect(formatOperators, [formulaText])
+    useEffect(() => {
+        formatOperators();
+        handleDecimal();
+    }, [formulaText])
 
   return (
     <div className="App">

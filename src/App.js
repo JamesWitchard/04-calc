@@ -6,8 +6,10 @@ import Keypad from "./Components/Keypad";
 
 import './App.css';
 
-const operators = /[+/\-x\*]/,
-    decimal = /^(\.)/
+const operators = /[+\/\-x*]/g,
+    beginsWithOperator = /^[+\/\-*]/,
+    moreThanOneOperator = /([*\/+]){2,}/g,
+    subtractAfterOperator = /[+\/x*]-/g;
 
 function App() {
     const [formulaText, setFormulaText] = useState([""]);
@@ -99,16 +101,8 @@ function App() {
                 setFormulaText([...formulaText, input]);
                 return;
             }
-
-            case "/": case "x": case "-": case "+": {
+            case "/": case "x": case "+": case "-": {
                 if (!canAddInput()) return;
-                // make sure that the 0 in the display is replaced with the button pressed, and pushing the button
-                // pressed to the formula string array as well.
-                if ((displayText[0] === "0" && displayText[1] !== ".")) {
-                    setDisplayText([input]);
-                    setFormulaText([input]);
-                    return;
-                }
                 if (gotAnswer) {
                     setGotAnswer(false);
                     setDisplayText([input]);
@@ -127,7 +121,6 @@ function App() {
                     .replace("--", "+0+0+0+0+0+0+");
                 let answer = Math.round(1000000000000 * eval(expression)) / 1000000000000;
                 setLastAnswer(answer.toString().split(""));
-                console.log(lastAnswer);
                 setFormulaText([...formulaText, "=", ...answer.toString().split("")]);
                 setDisplayText([...answer.toString().split("")]);
                 return;
@@ -142,7 +135,7 @@ function App() {
         // handle removing operators from front of display. Hacky but needs to be done.
         if (!operators.test(displayText[0])) return;
         if (displayText.length < 1) return;
-        displayText.shift();
+        displayText[0] = "";
     }
 
     function formatOperators() {
@@ -154,22 +147,54 @@ function App() {
             );
             setDisplayText(["x"]);
         }
-        // figure out if the last two entries in the formatText array were operators
-        if (operators.test(formulaText[formulaText.length-1]) && operators.test(formulaText[formulaText.length - 2])
-                && formulaText[formulaText.length-1] !== "-") {
-            let lastElement = formulaText[formulaText.length - 1];
-            formulaText.splice(formulaText.length - 2, 2);
-            setFormulaText([...formulaText, lastElement])
-            setDisplayText([lastElement]);
+        // handle if the first entry in formula display is operator, replace with most current operator if theres more
+        // than one
+        if (beginsWithOperator.test(formulaText.join(""))) {
+            if (operators.test(formulaText[1])) {
+                setFormulaText([formulaText[1]]);
+                setDisplayText([formulaText[1] === "*" ? "x" : formulaText[1]]);
+            }
         }
+        // handle if there's more than one subtract operator at the beginning of formula
+        if ((/^-{2,}/).test(formulaText.join(""))) {
+            setFormulaText(formulaText.join("")
+                .replace("--", "-")
+                .split(""));
+            setDisplayText(["-"]);
+        }
+        // handle if there's more than two subtract operators anywhere else in the formula
+        if ((/-{3,}/g).test(formulaText.join(""))) {
+            setFormulaText(formulaText.join("")
+                .replace("---", "--")
+                .split(""));
+            setDisplayText(["-"]);
+        }
+        // handle subtract after operator
+
+        // // handle more than one operator
+        if (moreThanOneOperator.test(formulaText.join(""))) {
+            let lastOperator = formulaText[formulaText.length-1]
+            formulaText.splice(-2, 2);
+            setFormulaText([...formulaText, lastOperator]);
+            setDisplayText([lastOperator === "*" ? "x" : lastOperator]);
+            console.log(lastOperator);
+        }
+            //setDisplayText([formulaText[formulaText.length - 1] === "*" ? "x" : formulaText[formulaText.length - 1]]);
+
     }
 
     function handleDecimal() {
-        if (formulaText.join("").indexOf(".") < 0) return;
-        if ((/\d/g).test(formulaText[formulaText.indexOf(".") - 1])) return;
-        setFormulaText([...formulaText.join("")
-            .replace(".", "0.")
-            .split("")]);
+        formulaText.forEach((item, index, arr) => {
+            if (item !== ".") return;
+            if ((/\d/).test(arr.at(index - 1))) return;
+            arr[index] = item.replace(".", "0.");
+        })
+        displayText.forEach((item, index, arr) => {
+            if (item !== ".") return;
+            if ((/\d/).test(arr.at(index - 1))) return;
+            arr[index] = item.replace(".", "0.");
+        })
+
 
     }
 

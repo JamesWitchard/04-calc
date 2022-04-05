@@ -8,7 +8,7 @@ import './App.css';
 
 const operators = /[+\/\-x*]/g,
     beginsWithOperator = /^[+\/\-*]/,
-    moreThanOneOperator = /([*\/+]){2,}/g,
+    moreThanOneOperator = /([*\/+-]){2,}/g,
     subtractAfterOperator = /[+\/x*]-/g;
 
 function App() {
@@ -147,38 +147,51 @@ function App() {
             );
             setDisplayText(["x"]);
         }
-        // handle if the first entry in formula display is operator, replace with most current operator if theres more
-        // than one
-        if (beginsWithOperator.test(formulaText.join(""))) {
-            if (operators.test(formulaText[1])) {
-                setFormulaText([formulaText[1]]);
-                setDisplayText([formulaText[1] === "*" ? "x" : formulaText[1]]);
+
+        let formString = formulaText.join("");
+        let lastTwo = formString.substring(formString.length - 2);
+        if (moreThanOneOperator.test(lastTwo)) {
+            if (lastTwo === "--"){
+
+            } else {
+                formulaText.splice(-2, 2);
+                setFormulaText([...formulaText, lastTwo[1]]);
+                setDisplayText([lastTwo[1] === "*" ? "x" : lastTwo[1]]);
             }
         }
-        // handle if there's more than one subtract operator at the beginning of formula
-        if ((/^-{2,}/).test(formulaText.join(""))) {
-            setFormulaText(formulaText.join("")
-                .replace("--", "-")
-                .split(""));
-            setDisplayText(["-"]);
-        }
-        // handle if there's more than two subtract operators anywhere else in the formula
-        if ((/-{3,}/g).test(formulaText.join(""))) {
-            setFormulaText(formulaText.join("")
-                .replace("---", "--")
-                .split(""));
-            setDisplayText(["-"]);
-        }
-        // handle subtract after operator
-
-        // // handle more than one operator
-        if (moreThanOneOperator.test(formulaText.join(""))) {
-            let lastOperator = formulaText[formulaText.length-1]
-            formulaText.splice(-2, 2);
-            setFormulaText([...formulaText, lastOperator]);
-            setDisplayText([lastOperator === "*" ? "x" : lastOperator]);
-            console.log(lastOperator);
-        }
+        console.log(lastTwo);
+        // // handle if the first entry in formula display is operator, replace with most current operator if theres more
+        // // than one
+        // if (beginsWithOperator.test(formulaText.join(""))) {
+        //     if (operators.test(formulaText[1])) {
+        //         setFormulaText([formulaText[1]]);
+        //         setDisplayText([formulaText[1] === "*" ? "x" : formulaText[1]]);
+        //     }
+        // }
+        // // handle if there's more than one subtract operator at the beginning of formula
+        // if ((/^-{2,}/).test(formulaText.join(""))) {
+        //     setFormulaText(formulaText.join("")
+        //         .replace("--", "-")
+        //         .split(""));
+        //     setDisplayText(["-"]);
+        // }
+        // // handle if there's more than two subtract operators anywhere else in the formula
+        // if ((/-{3,}/g).test(formulaText.join(""))) {
+        //     setFormulaText(formulaText.join("")
+        //         .replace("---", "--")
+        //         .split(""));
+        //     setDisplayText(["-"]);
+        // }
+        // // handle subtract after operator
+        //
+        // // // handle more than one operator
+        // if (moreThanOneOperator.test(formulaText.join(""))) {
+        //     let lastOperator = formulaText[formulaText.length-1]
+        //     formulaText.splice(-2, 2);
+        //     setFormulaText([...formulaText, lastOperator]);
+        //     setDisplayText([lastOperator === "*" ? "x" : lastOperator]);
+        //     console.log(lastOperator);
+        // }
             //setDisplayText([formulaText[formulaText.length - 1] === "*" ? "x" : formulaText[formulaText.length - 1]]);
 
     }

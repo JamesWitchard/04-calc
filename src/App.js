@@ -19,6 +19,8 @@ function App() {
     function clearAll() {
         clearFormula();
         clearDisplay();
+        setLastAnswer([""]);
+        setGotAnswer(false);
     }
 
     function clearFormula() {
@@ -121,7 +123,8 @@ function App() {
             case "=": {
                 setGotAnswer(true);
                 let expression = formulaText.join("")
-                    .replace(/[.]$/, ".0");
+                    .replace(/[.]$/, ".0")
+                    .replace("--", "+0+0+0+0+0+0+");
                 let answer = Math.round(1000000000000 * eval(expression)) / 1000000000000;
                 setLastAnswer(answer.toString().split(""));
                 console.log(lastAnswer);
@@ -140,8 +143,6 @@ function App() {
         if (!operators.test(displayText[0])) return;
         if (displayText.length < 1) return;
         displayText.shift();
-        //setDisplayText(displayText.shift());
-
     }
 
     function formatOperators() {
@@ -151,13 +152,15 @@ function App() {
                 .replace("x", "*")
                 .split("")]
             );
+            setDisplayText(["x"]);
         }
         // figure out if the last two entries in the formatText array were operators
-        if (operators.test(formulaText[formulaText.length-1]) && operators.test(formulaText[formulaText.length - 2])) {
+        if (operators.test(formulaText[formulaText.length-1]) && operators.test(formulaText[formulaText.length - 2])
+                && formulaText[formulaText.length-1] !== "-") {
             let lastElement = formulaText[formulaText.length - 1];
-            formulaText.pop();
-            formulaText.pop();
+            formulaText.splice(formulaText.length - 2, 2);
             setFormulaText([...formulaText, lastElement])
+            setDisplayText([lastElement]);
         }
     }
 

@@ -1,70 +1,27 @@
-# Getting Started with Create React App
+# Calculator
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is a [Free Code Camp](https://www.freecodecamp.org/) final project. It features the ability to add, subtract, 
+divide and multiply any combination of numbers including decimals and negative numbers.
 
-## Available Scripts
 
-In the project directory, you can run:
+## Tools
 
-### `npm start`
+This is a React.js based application.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+##Challenges
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+The biggest challenge was getting the operators to play nicely with the rest of the app. Being able to limit the amount 
+of consecutive operators took a lot of work with Regular Expressions, which is something I still find a little hard to 
+grasp but this project definitely helped me in understanding them a little more.
 
-### `npm test`
+Another thing I could have done better was use some form of reducer, either through React's useReducer() hook, or an
+external library like Redux, as it would have meant I could spread the code out a lot more instead of having it all 
+funnel through one massive parseInt() function. One of the things I plan to do is look back into this project and 
+reimplementing it with a reducer.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Known Issues
 
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Currently the biggest known issues are the fact that all the operator changes occur on component refresh and are not 
+instant, currently I'm not as well versed in React to be able to make it happen completely live. Another issue on a 
+similar tangent is working with decimals, it relies on the formula array to update before it changes any instances of a 
+singular decimal without a preceding digit to a better formatted decimal digit ("." to "0.").

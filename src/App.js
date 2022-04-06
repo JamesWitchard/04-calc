@@ -6,10 +6,8 @@ import Keypad from "./Components/Keypad";
 
 import './App.css';
 
-const operators = /[+\/\-x*]/g,
-    beginsWithOperator = /^[+\/\-*]/,
-    moreThanOneOperator = /([*\/+-]){2,}/g,
-    subtractAfterOperator = /[+\/x*]-/g;
+const operators = /[+/\-*x]/,
+    beginsWithOperator = /^[+/\-*]/
 
 function App() {
     const [formulaText, setFormulaText] = useState([""]);
@@ -54,24 +52,9 @@ function App() {
                 clearAll();
                 return;
             }
-            case "0": {
-                if (!canAddInput()) return;
-                // make sure that the 0 in the display is replaced with the button pressed, and pushing the button
-                // pressed to the formula string array as well.
-                if ((displayText[0] === "0" && displayText[1] !== ".") || gotAnswer) {
-                    setGotAnswer(false);
-                    setDisplayText([input]);
-                    setFormulaText([input])
-                    return;
-                }
-                setDisplayText([...displayText, input]);
-                setFormulaText([...formulaText, input]);
-                return;
-            }
-
-            case "1": case "2": case "3": case "4":
-            case "5": case "6": case "7": case "8":
-            case "9": {
+            case "0": case "1": case "2": case "3":
+            case "4": case "5": case "6": case "7":
+            case "8": case "9": {
                 if (!canAddInput()) return;
                 // make sure that the 0 in the display is replaced with the button pressed, and pushing the button
                 // pressed to the formula string array as well.
@@ -147,53 +130,53 @@ function App() {
             );
             setDisplayText(["x"]);
         }
-
         let formString = formulaText.join("");
-        let lastTwo = formString.substring(formString.length - 2);
-        if (moreThanOneOperator.test(lastTwo)) {
-            if (lastTwo === "--"){
+        // does the formula begin with an operator ("+", "*", "-", "/")
+        if (beginsWithOperator.test(formString)) {
+            // if yes, check if the next character in the formula is also an operator.
+            if (!operators.test(formString[1])) return;
+            // if yes, replace the first character in the operator with the last input operator and set both displays
+            // correctly.
+            let displayValue = formString[1];
+            formulaText.shift();
+            setFormulaText([...formulaText]);
+            setDisplayText([displayValue === "*" ? "x" : displayValue]);
 
-            } else {
+        } else {
+            // if no, then check for operators throughout the rest of the string.
+            let displayValue = formString[formString.length - 1];
+            // check if there are repeating operators (e.g. "\\", "+*", etc), and replace the operators with the last
+            // input operator (excluding operators that begin with "-" as they are a special case)
+            if ((/\d([+\/*]){2,}/).test(formString)) {
                 formulaText.splice(-2, 2);
-                setFormulaText([...formulaText, lastTwo[1]]);
-                setDisplayText([lastTwo[1] === "*" ? "x" : lastTwo[1]]);
+                setFormulaText([...formulaText, displayValue]);
+                setDisplayText([displayValue === "*" ? "x" : displayValue]);
+            // else check if the equation has an invalid negative operation ("9+-*"), and replaces it with the last
+            // input operator.
+            } else if ((/\d([+\/*])-([+\/*])/).test(formString)) {
+                formulaText.splice(-3, 3);
+                setFormulaText([...formulaText, displayValue]);
+                setDisplayText([displayValue === "*" ? "x" : displayValue]);
+            // else check for invalid double negative ("9/--") and replace it with a single negative
+            } else if ((/\d([+\/*])-{2,}/).test(formString)) {
+                formulaText.pop();
+                setFormulaText([...formulaText]);
+                setDisplayText(["-"]);
+            // finally check for invalid operators after negative value ("-/", "-+", "-*", etc) and replace with the
+            // last input operator
+            } else if ((/-([+\/*])/).test(formString)) {
+                formulaText.splice(-2, 2);
+                setFormulaText([...formulaText, displayValue]);
+                setDisplayText([displayValue === "*" ? "x" : displayValue]);
             }
         }
-        console.log(lastTwo);
-        // // handle if the first entry in formula display is operator, replace with most current operator if theres more
-        // // than one
-        // if (beginsWithOperator.test(formulaText.join(""))) {
-        //     if (operators.test(formulaText[1])) {
-        //         setFormulaText([formulaText[1]]);
-        //         setDisplayText([formulaText[1] === "*" ? "x" : formulaText[1]]);
-        //     }
-        // }
-        // // handle if there's more than one subtract operator at the beginning of formula
-        // if ((/^-{2,}/).test(formulaText.join(""))) {
-        //     setFormulaText(formulaText.join("")
-        //         .replace("--", "-")
-        //         .split(""));
-        //     setDisplayText(["-"]);
-        // }
-        // // handle if there's more than two subtract operators anywhere else in the formula
-        // if ((/-{3,}/g).test(formulaText.join(""))) {
-        //     setFormulaText(formulaText.join("")
-        //         .replace("---", "--")
-        //         .split(""));
-        //     setDisplayText(["-"]);
-        // }
-        // // handle subtract after operator
-        //
-        // // // handle more than one operator
-        // if (moreThanOneOperator.test(formulaText.join(""))) {
-        //     let lastOperator = formulaText[formulaText.length-1]
-        //     formulaText.splice(-2, 2);
-        //     setFormulaText([...formulaText, lastOperator]);
-        //     setDisplayText([lastOperator === "*" ? "x" : lastOperator]);
-        //     console.log(lastOperator);
-        // }
-            //setDisplayText([formulaText[formulaText.length - 1] === "*" ? "x" : formulaText[formulaText.length - 1]]);
-
+        // check if there are more than two negative operators, and replace it with a double
+        if ((/\d-{3,}/g).test(formString)) {
+            setFormulaText(formString
+                .replace(/-{3,}/g, "--")
+                .split(""));
+            setDisplayText(["-"]);
+        }
     }
 
     function handleDecimal() {
